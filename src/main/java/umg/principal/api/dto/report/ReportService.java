@@ -33,6 +33,9 @@ public class ReportService {
             List<Report> reports = ApiHttpClient.getReports(iso, dateStr);
 
             if (reports != null && !reports.isEmpty()) {
+                // Guardar registro en tabla execution_report
+                guardarEjecucionReporte(date, iso);
+
                 for (Report report : reports) {
                     // Establecer la fecha LocalDate en el objeto Report
                     report.setFecha(date);
@@ -54,6 +57,21 @@ public class ReportService {
         }
     }
 
+    private void guardarEjecucionReporte(LocalDate fecha, String iso) {
+        try {
+            ExecutionReport report = new ExecutionReport(fecha, iso);
+            em.getTransaction().begin();
+            em.persist(report);
+            em.getTransaction().commit();
+            logger.info("✅ Registro de ejecución guardado exitosamente para ISO: " + iso);
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            logger.severe("❌ Error al guardar registro de ejecución: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     public void guardarReporte(Report report) {
         try {
