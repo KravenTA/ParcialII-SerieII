@@ -8,6 +8,7 @@ import umg.principal.api.service.ApiHttpClient;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -63,6 +64,12 @@ public class ReportService {
             logger.severe("❌ Error inesperado: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    // Añadir a ReportService.java
+    public Collection<Report> obtenerReportesPorPaisYFecha(String iso, String fechaStr) {
+        ReportQueryService queryService = new ReportQueryService(em);
+        return queryService.consultarReportesPorPaisYFecha(iso, fechaStr);
     }
 
     public void guardarReporte(Report report) {
