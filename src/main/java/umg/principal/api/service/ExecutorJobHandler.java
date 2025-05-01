@@ -1,8 +1,12 @@
 package umg.principal.api.service;
 
+import umg.principal.api.config.ConfigProperties;
 import umg.principal.api.dto.report.Report;
 import umg.principal.api.dto.report.ReportService;
 
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Timer;
@@ -32,22 +36,14 @@ public class ExecutorJobHandler {
         List<String> regiones = ApiHttpClient.getRegions(); // ← Obtener todas las regiones
         logger.info("Se obtuvieron " + regiones.size() + " regiones");
 
-        String date = "2022-04-16"; // Puedes hacerlo dinámico si querés
-        String isoPaisEjemplo = "CHN";
+        // Obtener la fecha como LocalDate
+        LocalDate localDate = ConfigProperties.getReportDate();
+        // Convertir la fecha a String en formato ISO
+        String date = localDate.format(DateTimeFormatter.ISO_DATE);
+        // Utilizar el valor del país ejemplo desde properties
+        String isoPaisEjemplo = ConfigProperties.getExampleCountry();
         ReportService reportService = new ReportService();
 
-        for (String iso : regiones) {
-            try {
-                logger.info("Procesando ISO: " + iso);
-                reportService.obtenerYGuardarReporte(iso, date);
-            } catch (Exception e) {
-                logger.severe("❌ Error procesando ISO: " + iso + " → " + e.getMessage());
-            }
-        }
-
-        // En la clase ExecutorJobHandler.java, en el método iniciarProcesamiento
-
-        // Después del bucle for que procesa todas las regiones pero antes de cerrar la conexión
         for (String iso : regiones) {
             try {
                 logger.info("Procesando ISO: " + iso);
@@ -64,9 +60,6 @@ public class ExecutorJobHandler {
         logger.info("Obteniendo reportes para " + isoPaisEjemplo + " en fecha " + date);
         Collection<Report> reportesOrdenados = reportService.obtenerReportesPorPaisYFecha(isoPaisEjemplo, date);
         logger.info("Total de registros sin duplicados: " + reportesOrdenados.size());
-
-        reportService.cerrarConexion();
-        logger.info("Proceso de consumo de API completado exitosamente");
 
         reportService.cerrarConexion();
         logger.info("Proceso de consumo de API completado exitosamente");
