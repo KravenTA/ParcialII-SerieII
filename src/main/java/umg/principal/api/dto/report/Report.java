@@ -19,13 +19,12 @@ public class Report implements Serializable {
     private String name;
 
     @Column(name = "date")
-    private LocalDate fecha; // Cambiado a LocalDate
+    private LocalDate date;
 
     private int confirmed;
     private int deaths;
     private int recovered;
 
-    // ... (resto del código: getters, setters, toString)
     public Report() {
     }
 
@@ -54,11 +53,19 @@ public class Report implements Serializable {
     }
 
     public LocalDate getFecha() {
-        return fecha;
+        return date;
     }
 
-    public void setFecha(LocalDate fecha) {
-        this.fecha = fecha;
+    public void setFecha(LocalDate date) {
+        this.date = date;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
     }
 
     public int getConfirmed() {
@@ -85,8 +92,13 @@ public class Report implements Serializable {
         this.recovered = recovered;
     }
 
-    public String getName(){return name;}
-    public void setName(String name){this.name = name;}
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     @Override
     public String toString() {
@@ -94,7 +106,7 @@ public class Report implements Serializable {
                 "id=" + id +
                 ", iso='" + iso + '\'' +
                 ", province='" + province + '\'' +
-                ", fecha=" + fecha +
+                ", date=" + date +
                 ", confirmed=" + confirmed +
                 ", deaths=" + deaths +
                 ", recovered=" + recovered +

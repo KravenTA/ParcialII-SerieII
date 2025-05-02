@@ -18,59 +18,52 @@ public class ReportQueryService {
         this.em = em;
     }
 
-    public Collection<Report> consultarReportesPorPaisYFecha(String iso, String fechaStr) {
-        logger.info("Consultando reportes para ISO: " + iso + " y fecha: " + fechaStr);
+
+    public Collection<Report> queryReportsByCountryAndDate(String iso, String dateStr) {
+        logger.info("Querying reports for ISO: " + iso + " and date: " + dateStr);
 
         try {
-            // Convertir la cadena de fecha a LocalDate
-            LocalDate fecha = LocalDate.parse(fechaStr, DateTimeFormatter.ISO_DATE);
+            LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ISO_DATE);
 
-            // Consultar todos los reportes para el país y fecha especificados
             TypedQuery<Report> query = em.createQuery(
-                    "SELECT r FROM Report r WHERE r.iso = :iso AND r.fecha = :fecha",
+                    "SELECT r FROM Report r WHERE r.iso = :iso AND r.date = :date",
                     Report.class
             );
             query.setParameter("iso", iso);
-            query.setParameter("fecha", fecha);
+            query.setParameter("date", date);
 
-            List<Report> reportes = query.getResultList();
-            logger.info("Se encontraron " + reportes.size() + " reportes para ISO: " + iso + " en la fecha: " + fechaStr);
+            List<Report> reports = query.getResultList();
+            logger.info("Found " + reports.size() + " reports for ISO: " + iso + " on date: " + dateStr);
 
-            // Usar TreeMap para eliminar duplicados y ordenar alfabéticamente por provincia
-            TreeMap<String, Report> reportesUnicos = new TreeMap<>();
+            TreeMap<String, Report> uniqueReports = new TreeMap<>();
 
-            for (Report reporte : reportes) {
-                // Usar provincia como clave única o, si no está disponible, usar otro identificador
-                String clave = reporte.getProvince() != null && !reporte.getProvince().isEmpty()
-                        ? reporte.getProvince()
-                        : reporte.getName();
+            for (Report report : reports) {
+                String key = report.getProvince() != null && !report.getProvince().isEmpty()
+                        ? report.getProvince()
+                        : report.getName();
 
-                reportesUnicos.put(clave, reporte);
+                uniqueReports.put(key, report);
             }
 
-            // Modificación para ReportQueryService.java
-            // Reemplaza el bloque de código que muestra los reportes en la consola
-
-            // Mostrar los reportes ordenados y sin duplicados
-            logger.info("Reportes agrupados por provincia para ISO: " + iso + ":");
-            reportesUnicos.forEach((provincia, reporte) ->
+            logger.info("Reports grouped by province for ISO: " + iso + ":");
+            uniqueReports.forEach((province, report) ->
                     logger.info("Report{" +
-                            "id=" + reporte.getId() +
-                            ", iso='" + reporte.getIso() + '\'' +
-                            ", province='" + provincia + '\'' +
-                            ", fecha=" + reporte.getFecha() +
-                            ", confirmed=" + reporte.getConfirmed() +
-                            ", deaths=" + reporte.getDeaths() +
-                            ", recovered=" + reporte.getRecovered() +
-                            ", name='" + reporte.getName() + '\'' +
+                            "id=" + report.getId() +
+                            ", iso='" + report.getIso() + '\'' +
+                            ", province='" + province + '\'' +
+                            ", date=" + report.getFecha() +
+                            ", confirmed=" + report.getConfirmed() +
+                            ", deaths=" + report.getDeaths() +
+                            ", recovered=" + report.getRecovered() +
+                            ", name='" + report.getName() + '\'' +
                             '}'));
 
-            return reportesUnicos.values();
+            return uniqueReports.values();
 
         } catch (Exception e) {
-            logger.severe("❌ Error al consultar reportes: " + e.getMessage());
+            logger.severe("❌ Error querying reports: " + e.getMessage());
             e.printStackTrace();
-            return List.of(); // Retornar lista vacía en caso de error
+            return List.of();
         }
     }
 }

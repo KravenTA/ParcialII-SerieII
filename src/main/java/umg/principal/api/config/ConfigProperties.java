@@ -22,12 +22,11 @@ public class ConfigProperties {
                 if (input != null) {
                     properties.load(input);
                     loaded = true;
-                    logger.info("✅ Archivo de propiedades cargado correctamente");
                 } else {
-                    logger.severe("❌ No se encontró el archivo application.properties");
+                    logger.severe("❌ The application.properties file was not found");
                 }
             } catch (IOException e) {
-                logger.severe("❌ Error al cargar el archivo de propiedades: " + e.getMessage());
+                logger.severe("❌ Error loading the properties file: " + e.getMessage());
             }
         }
     }
@@ -54,12 +53,13 @@ public class ConfigProperties {
         return getProperty("covid.example.country", "CHN");
     }
 
+
     public static int getProcessingDelay() {
         String delayStr = getProperty("covid.processing.delay", "15");
         try {
             return Integer.parseInt(delayStr);
         } catch (NumberFormatException e) {
-            logger.warning("Valor inválido para covid.processing.delay: " + delayStr + ". Usando valor predeterminado: 15");
+            logger.warning("Invalid value for covid.processing.delay: " + delayStr + ". Using default value: 15");
             return 15;
         }
     }

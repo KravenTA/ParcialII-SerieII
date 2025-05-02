@@ -25,75 +25,66 @@ public class ReportService {
         this.executionReportService = new ExecutionReportService(em);
     }
 
-    public void obtenerYGuardarReporte(String iso, String dateStr) {
+    public void obtainAndSaveReport(String iso, String dateStr) {
         try {
-            logger.info("Procesando reporte para ISO: " + iso + " y fecha: " + dateStr);
+            logger.info("Processing report for ISO: " + iso + " and date: " + dateStr);
 
-            // Convertir la cadena de fecha a LocalDate
             LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ISO_DATE);
 
-            // Verificar si ya fue procesado anteriormente
-            if (executionReportService.fueEjecutadoAnteriormente(iso, date)) {
-                logger.info("⏭️ ISO: " + iso + " omitido - ya fue procesado previamente para la fecha: " + dateStr);
+            if (executionReportService.wasExecutedPreviously(iso, date)) {
+                logger.info("⏭️ ISO: " + iso + " skipped - already processed previously for the date: " + dateStr);
                 return;
             }
 
-            // Obtener los reportes desde la API
             List<Report> reports = ApiHttpClient.getReports(iso, dateStr);
 
             if (reports != null && !reports.isEmpty()) {
                 for (Report report : reports) {
-                    // Establecer la fecha LocalDate en el objeto Report
                     report.setFecha(date);
-
-                    // Guardar cada reporte en la base de datos
-                    guardarReporte(report);
+                    saveReport(report);
                 }
 
-                // Registrar la ejecución exitosa
-                executionReportService.registrarEjecucion(iso, date);
-                logger.info("✅ ISO: " + iso + " procesado y guardado correctamente para la fecha: " + dateStr);
+                executionReportService.registerExecution(iso, date);
+                logger.info("✅ ISO: " + iso + " processed and saved successfully for the date: " + dateStr);
             } else {
-                logger.warning("⚠️ No se obtuvieron datos para ISO: " + iso + " y fecha: " + dateStr);
+                logger.warning("⚠️ No data was obtained for ISO: " + iso + " and date: " + dateStr);
+                // Register execution even when no data is found to avoid future attempts
+                executionReportService.registerExecution(iso, date);
+                logger.info("📝 Execution was recorded for ISO: " + iso + " even though no data was found");
             }
 
-        } catch (IOException e) {
-            logger.severe("❌ Error al obtener los reportes de la API: " + e.getMessage());
-            e.printStackTrace();
         } catch (Exception e) {
-            logger.severe("❌ Error inesperado: " + e.getMessage());
+            logger.severe("❌ Unexpected error: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    // Añadir a ReportService.java
-    public Collection<Report> obtenerReportesPorPaisYFecha(String iso, String fechaStr) {
+    public Collection<Report> getReportsByCountryAndDate(String iso, String dateStr) {
         ReportQueryService queryService = new ReportQueryService(em);
-        return queryService.consultarReportesPorPaisYFecha(iso, fechaStr);
+        return queryService.queryReportsByCountryAndDate(iso, dateStr);
     }
 
-    public void guardarReporte(Report report) {
+    public void saveReport(Report report) {
         try {
             em.getTransaction().begin();
             em.persist(report);
             em.getTransaction().commit();
-            logger.info("Reporte individual guardado: " + report.getIso() + " - " + report.getName());
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
-            logger.severe("❌ Error al guardar el reporte: " + e.getMessage());
+            logger.severe("❌ Error saving the report: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    public void cerrarConexion() {
+    public void closeConnection() {
         if (em != null && em.isOpen()) {
             em.close();
         }
         if (emf != null && emf.isOpen()) {
             emf.close();
         }
-        logger.info("Conexiones cerradas correctamente");
+        logger.info("Connections closed successfully");
     }
 }

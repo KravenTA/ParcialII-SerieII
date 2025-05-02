@@ -10,15 +10,13 @@ public class ApiApplication {
     private static final Logger logger = Logger.getLogger(ApiApplication.class.getName());
 
     public static void main(String[] args) {
-        logger.info("Iniciando aplicación COVID Stats Tracker");
-        logger.info("Cargando propiedades de configuración");
-        // Obtener el tiempo de espera desde properties
-        int segundosEspera = ConfigProperties.getProcessingDelay();
+        logger.info("Starting COVID Stats Tracker application");
+
+        int secondsDelay = ConfigProperties.getProcessingDelay();
 
         ExecutorJobHandler executor = new ExecutorJobHandler();
-        executor.iniciarProcesamiento(segundosEspera);
+        executor.startProcessing(secondsDelay);
 
-        logger.info("Aplicación iniciada correctamente. El proceso de consumo de API se ejecutará en " + segundosEspera + " segundos");
+        logger.info("Application started successfully. The API consumption process will run in " + secondsDelay + " seconds");
     }
 }
-//fin

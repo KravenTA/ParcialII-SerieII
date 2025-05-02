@@ -38,13 +38,13 @@ public class ApiHttpClient {
                 for (JsonNode node : dataNode) {
                     String iso = node.path("iso").asText();
                     if (!iso.isEmpty()) {
-                        regions.add(iso); // ← ¡Este es el correcto!
+                        regions.add(iso);
                     }
                 }
             }
 
         } catch (IOException | InterruptedException e) {
-            logger.severe("Error al obtener regiones de la API: " + e.getMessage());
+            logger.severe("Error retrieving regions from the API: " + e.getMessage());
             e.printStackTrace();
         }
         return regions;
@@ -65,7 +65,6 @@ public class ApiHttpClient {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             String responseBody = response.body();
 
-            // Parsear la respuesta JSON y extraer las provincias
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(responseBody);
             JsonNode dataNode = rootNode.path("data");
@@ -76,7 +75,7 @@ public class ApiHttpClient {
             }
 
         } catch (IOException | InterruptedException e) {
-            logger.severe("Error al obtener provincias de la API: " + e.getMessage());
+            logger.severe("Error retrieving provinces from the API: " + e.getMessage());
             e.printStackTrace();
         }
         return provinces;
@@ -92,7 +91,6 @@ public class ApiHttpClient {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         String responseBody = response.body();
 
-        // Parsear la respuesta JSON y crear los objetos Report
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(responseBody);
         JsonNode dataNode = rootNode.path("data");
