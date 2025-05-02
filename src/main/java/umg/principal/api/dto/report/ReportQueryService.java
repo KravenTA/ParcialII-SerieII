@@ -18,7 +18,6 @@ public class ReportQueryService {
         this.em = em;
     }
 
-
     public Collection<Report> queryReportsByCountryAndDate(String iso, String dateStr) {
         logger.info("Querying reports for ISO: " + iso + " and date: " + dateStr);
 
@@ -45,18 +44,20 @@ public class ReportQueryService {
                 uniqueReports.put(key, report);
             }
 
-            logger.info("Reports grouped by province for ISO: " + iso + ":");
-            uniqueReports.forEach((province, report) ->
-                    logger.info("Report{" +
-                            "id=" + report.getId() +
-                            ", iso='" + report.getIso() + '\'' +
-                            ", province='" + province + '\'' +
-                            ", date=" + report.getFecha() +
-                            ", confirmed=" + report.getConfirmed() +
-                            ", deaths=" + report.getDeaths() +
-                            ", recovered=" + report.getRecovered() +
-                            ", name='" + report.getName() + '\'' +
-                            '}'));
+            logger.info("=== Report Summary for " + iso + " (" + dateStr + ") ===");
+            logger.info(String.format("%-25s | %-8s | %-8s | %-8s", "Province", "Confirmed", "Deaths", "Recovered"));
+            logger.info("-------------------------------------------------------------------");
+
+            uniqueReports.forEach((province, report) -> {
+                logger.info(String.format("%-25s | %-8d | %-8d | %-8d",
+                        province.length() > 25 ? province.substring(0, 22) + "..." : province,
+                        report.getConfirmed(),
+                        report.getDeaths(),
+                        report.getRecovered()));
+            });
+
+            logger.info("-------------------------------------------------------------------");
+            logger.info("Total unique regions: " + uniqueReports.size());
 
             return uniqueReports.values();
 
@@ -66,4 +67,6 @@ public class ReportQueryService {
             return List.of();
         }
     }
+
+
 }

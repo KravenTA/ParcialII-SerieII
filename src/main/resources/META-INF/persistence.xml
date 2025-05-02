@@ -7,6 +7,7 @@
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <class>umg.principal.api.dto.report.Report</class>
         <class>umg.principal.api.dto.report.ExecutionReport</class>
+        <class>umg.principal.api.dto.province.Province</class>
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
             <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/covid?useSSL=false&amp;serverTimezone=UTC"/>

@@ -13,7 +13,6 @@ public class ConfigProperties {
     private static boolean loaded = false;
 
     private ConfigProperties() {
-        // Constructor privado para evitar instanciación
     }
 
     public static void load() {

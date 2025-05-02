@@ -1,6 +1,7 @@
 package umg.principal.api.service;
 
 import umg.principal.api.config.ConfigProperties;
+import umg.principal.api.dto.province.ProvinceService;
 import umg.principal.api.dto.report.Report;
 import umg.principal.api.dto.report.ReportService;
 
@@ -38,12 +39,18 @@ public class ExecutorJobHandler {
         LocalDate localDate = ConfigProperties.getReportDate();
         String date = localDate.format(DateTimeFormatter.ISO_DATE);
         String exampleCountryIso = ConfigProperties.getExampleCountry();
+
         ReportService reportService = new ReportService();
+        ProvinceService provinceService = new ProvinceService();
 
         for (String iso : regions) {
             try {
                 logger.info("Processing ISO: " + iso);
+
+                provinceService.obtainAndSaveProvinces(iso);
+
                 reportService.obtainAndSaveReport(iso, date);
+
             } catch (Exception e) {
                 logger.severe("❌ Error processing ISO: " + iso + " → " + e.getMessage());
             }

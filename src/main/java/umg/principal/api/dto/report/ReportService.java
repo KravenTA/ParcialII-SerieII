@@ -48,7 +48,7 @@ public class ReportService {
                 logger.info("✅ ISO: " + iso + " processed and saved successfully for the date: " + dateStr);
             } else {
                 logger.warning("⚠️ No data was obtained for ISO: " + iso + " and date: " + dateStr);
-                // Register execution even when no data is found to avoid future attempts
+
                 executionReportService.registerExecution(iso, date);
                 logger.info("📝 Execution was recorded for ISO: " + iso + " even though no data was found");
             }

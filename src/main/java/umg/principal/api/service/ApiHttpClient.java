@@ -2,6 +2,7 @@ package umg.principal.api.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import umg.principal.api.dto.province.Province;
 import umg.principal.api.dto.report.Report;
 
 import java.io.IOException;
@@ -50,17 +51,14 @@ public class ApiHttpClient {
         return regions;
     }
 
-
-    public static List<String> getProvinces(String iso) {
-        List<String> provinces = new ArrayList<>();
+    public static List<Province> getProvinceDetails(String iso) {
+        List<Province> provinces = new ArrayList<>();
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://covid-19-statistics.p.rapidapi.com/provinces"))
+                    .uri(URI.create("https://covid-19-statistics.p.rapidapi.com/provinces?iso=" + iso))
                     .header("X-RapidAPI-Key", RAPIDAPI_KEY)
                     .header("X-RapidAPI-Host", RAPIDAPI_HOST)
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString("{\"iso\":\"" + iso + "\"}"))
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             String responseBody = response.body();
@@ -68,9 +66,30 @@ public class ApiHttpClient {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(responseBody);
             JsonNode dataNode = rootNode.path("data");
+
             if (dataNode.isArray()) {
-                for (JsonNode node : dataNode) {
-                    provinces.add(node.path("name").asText());
+                for (JsonNode provinceNode : dataNode) {
+                    Province province = new Province();
+                    province.setIso(provinceNode.path("iso").asText());
+                    province.setName(provinceNode.path("name").asText());
+                    province.setProvince(provinceNode.path("province").asText());
+
+                    String lat = provinceNode.path("lat").asText();
+                    String lon = provinceNode.path("long").asText();
+
+                    try {
+                        province.setLat(Double.parseDouble(lat));
+                    } catch (NumberFormatException e) {
+                        province.setLat(null);
+                    }
+
+                    try {
+                        province.setLon(Double.parseDouble(lon));
+                    } catch (NumberFormatException e) {
+                        province.setLon(null);
+                    }
+
+                    provinces.add(province);
                 }
             }
 
